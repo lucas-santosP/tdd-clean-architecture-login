@@ -1,5 +1,5 @@
 import LoginRouter from "./login-router";
-import { MissingParamError, UnauthorizedError } from "../errors";
+import { MissingParamError, UnauthorizedError, ServerError } from "../errors";
 
 function makeSut () {
   class AuthUseCaseSpy {
@@ -46,6 +46,7 @@ describe("Login Router", () => {
     const httpResponse = sut.route();
 
     expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
   });
 
   test("Should return 500 if httpRequest has no body", () => {
@@ -54,20 +55,7 @@ describe("Login Router", () => {
     const httpResponse = sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-  });
-
-  test("Should call AuthUseCase with correct params", () => {
-    const { sut, authUseCaseSpy } = makeSut();
-    const httpRequest = {
-      body: {
-        email: "any_email@email.com",
-        password: "any_pass",
-      },
-    };
-    sut.route(httpRequest);
-
-    expect(authUseCaseSpy.email).toBe(httpRequest.body.email);
-    expect(authUseCaseSpy.password).toBe(httpRequest.body.password);
+    expect(httpResponse.body).toEqual(new ServerError());
   });
 
   test("Should return 401 if received invalid credentials", () => {
@@ -82,5 +70,19 @@ describe("Login Router", () => {
 
     expect(httpResponse.statusCode).toBe(401);
     expect(httpResponse.body).toEqual(new UnauthorizedError());
+  });
+
+  test("Should call AuthUseCase with correct params", () => {
+    const { sut, authUseCaseSpy } = makeSut();
+    const httpRequest = {
+      body: {
+        email: "any_email@email.com",
+        password: "any_pass",
+      },
+    };
+    sut.route(httpRequest);
+
+    expect(authUseCaseSpy.email).toBe(httpRequest.body.email);
+    expect(authUseCaseSpy.password).toBe(httpRequest.body.password);
   });
 });
