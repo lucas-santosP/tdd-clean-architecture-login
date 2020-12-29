@@ -12,4 +12,8 @@ export default class HttpResponse {
   static unauthorizedError () {
     return { statusCode: 401, body: new UnauthorizedError() };
   }
+
+  static ok (body) {
+    return { statusCode: 200, body };
+  }
 }

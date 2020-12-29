@@ -6,10 +6,12 @@ function makeSut () {
     auth (email, password) {
       this.email = email;
       this.password = password;
+      return this.accessToken;
     }
   }
 
   const authUseCaseSpy = new AuthUseCaseSpy();
+  authUseCaseSpy.accessToken = "valid_token";
   const sut = new LoginRouter(authUseCaseSpy);
   return { authUseCaseSpy, sut };
 }
@@ -58,8 +60,9 @@ describe("Login Router", () => {
     expect(httpResponse.body).toEqual(new ServerError());
   });
 
-  test("Should return 401 if received invalid credentials", () => {
-    const { sut } = makeSut();
+  test("Should return 401 if invalid credentials are received", () => {
+    const { sut, authUseCaseSpy } = makeSut();
+    authUseCaseSpy.accessToken = null;
     const httpRequest = {
       body: {
         email: "invalid_email@email.com",
@@ -70,6 +73,20 @@ describe("Login Router", () => {
 
     expect(httpResponse.statusCode).toBe(401);
     expect(httpResponse.body).toEqual(new UnauthorizedError());
+  });
+
+  test("Should return 200 if valid credentials are received", () => {
+    const { sut, authUseCaseSpy } = makeSut();
+    const httpRequest = {
+      body: {
+        email: "valid_email@email.com",
+        password: "valid_pass",
+      },
+    };
+    const httpResponse = sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(200);
+    expect(httpResponse.body.accessToken).toEqual(authUseCaseSpy.accessToken);
   });
 
   test("Should return 500 if no authUsecase is received", () => {
