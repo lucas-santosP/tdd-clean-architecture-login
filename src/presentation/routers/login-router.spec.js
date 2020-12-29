@@ -8,7 +8,7 @@ class LoginRouter {
 }
 
 describe("Login Router", () => {
-  test("Should return 400 if no email is receive", () => {
+  test("Should return 400 if no email is received", () => {
     const sut = new LoginRouter(); // sut - system under test
     const httpRequest = {
       body: {
@@ -20,7 +20,7 @@ describe("Login Router", () => {
     expect(httpResponse.statusCode).toBe(400);
   });
 
-  test("Should return 400 if no password is receive", () => {
+  test("Should return 400 if no password is received", () => {
     const sut = new LoginRouter();
     const httpRequest = {
       body: {
@@ -32,7 +32,7 @@ describe("Login Router", () => {
     expect(httpResponse.statusCode).toBe(400);
   });
 
-  test("Should return 500 if no httpRequest is receive", () => {
+  test("Should return 500 if no httpRequest is received", () => {
     const sut = new LoginRouter();
     const httpResponse = sut.route();
 
