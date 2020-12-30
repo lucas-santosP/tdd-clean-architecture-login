@@ -1,5 +1,5 @@
 import LoginRouter from "./login-router";
-import { MissingParamError, UnauthorizedError, ServerError } from "../errors";
+import { MissingParamError, UnauthorizedError, ServerError, InvalidParamError } from "../errors";
 
 function makeSut () {
   class AuthUseCaseSpy {
@@ -9,11 +9,20 @@ function makeSut () {
       return this.accessToken;
     }
   }
+  class EmailValidatorSpy {
+    validate (email) {
+      return this.isEmailValid;
+    }
+  }
 
   const authUseCaseSpy = new AuthUseCaseSpy();
+  const emailValidatorSpy = new EmailValidatorSpy();
+  // mock with default as valid data
   authUseCaseSpy.accessToken = "valid_token";
-  const sut = new LoginRouter(authUseCaseSpy);
-  return { authUseCaseSpy, sut };
+  emailValidatorSpy.isEmailValid = true;
+  const sut = new LoginRouter(authUseCaseSpy, emailValidatorSpy);
+
+  return { sut, authUseCaseSpy, emailValidatorSpy };
 }
 
 describe("Login Router", () => {
@@ -128,5 +137,20 @@ describe("Login Router", () => {
 
     expect(authUseCaseSpy.email).toBe(httpRequest.body.email);
     expect(authUseCaseSpy.password).toBe(httpRequest.body.password);
+  });
+
+  test("Should return 400 if invalid email is received", async () => {
+    const { sut, emailValidatorSpy } = makeSut();
+    emailValidatorSpy.isEmailValid = false;
+    const httpRequest = {
+      body: {
+        email: "invalid_email@email.com",
+        password: "any_pass",
+      },
+    };
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new InvalidParamError("email"));
   });
 });
