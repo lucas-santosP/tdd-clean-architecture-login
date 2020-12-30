@@ -7,7 +7,8 @@
     "dev": "nodemon --exec babel-node src/server.js",
     "build": "babel ./src --out-dir ./dist",
     "lint": "eslint",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll --noStackTrace",
+    "test-staged": "jest --passWithNoTests --findRelatedTests --onlyChanged --silent"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.10",
