@@ -8,7 +8,14 @@ export default class LoginRouter {
   }
 
   async route (httpRequest) {
-    if (!httpRequest || !httpRequest.body || !this.authUseCase || !this.authUseCase.auth) {
+    if (
+      !httpRequest ||
+      !httpRequest.body ||
+      !this.authUseCase ||
+      !this.authUseCase.auth ||
+      !this.emailValidator ||
+      !this.emailValidator.validate
+    ) {
       return HttpResponse.serverError();
     }
 
