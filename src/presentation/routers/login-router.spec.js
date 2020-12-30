@@ -175,4 +175,17 @@ describe("Login Router", () => {
       expect(httpResponse.body).toEqual(new ServerError());
     }
   });
+
+  test("Should call emailValidator with correct params", async () => {
+    const { sut, emailValidatorSpy } = makeSut();
+    const httpRequest = {
+      body: {
+        email: "any_email@email.com",
+        password: "any_pass",
+      },
+    };
+    await sut.route(httpRequest);
+
+    expect(emailValidatorSpy.email).toBe(httpRequest.body.email);
+  });
 });
