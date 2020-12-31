@@ -1,5 +1,5 @@
 import RegisterRouter from "../../src/presentation/routers/register-router";
-import { MissingParamError, ServerError } from "../../src/presentation/errors";
+import { MissingParamError, ServerError, InvalidParamError } from "../../src/presentation/errors";
 
 function makeSut () {
   const registerUser = makeRegisterUserSpy();
@@ -55,7 +55,7 @@ function makeEmailValidatorSpy () {
   return emailValidatorSpy;
 }
 
-describe("Reigster Router", () => {
+describe("Register Router", () => {
   test("Should return 400 if no email is received", async () => {
     const { sut } = makeSut();
     const httpRequest = {
@@ -80,6 +80,21 @@ describe("Reigster Router", () => {
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("name"));
+  });
+
+  test("Should return 401 if invalid email is received", async () => {
+    const { sut, emailValidator } = makeSut();
+    emailValidator.isEmailValid = false;
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "invalid_email@email.com",
+      },
+    };
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new InvalidParamError("email"));
   });
 
   test("Should return 500 if invalid emailSender is received", async () => {
