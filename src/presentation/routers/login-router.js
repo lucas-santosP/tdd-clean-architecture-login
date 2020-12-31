@@ -9,18 +9,19 @@ export default class LoginRouter {
 
   async route (httpRequest) {
     try {
-      const { email, password } = httpRequest.body;
-      if (!email) {
+      const userData = { email: httpRequest.body.email, password: httpRequest.body.password };
+
+      if (!userData.email) {
         return HttpResponse.badRequest(new MissingParamError("email"));
       }
-      if (!password) {
+      if (!userData.password) {
         return HttpResponse.badRequest(new MissingParamError("password"));
       }
-      if (!this.emailValidator.validate(email)) {
+      if (!this.emailValidator.validate(userData.email)) {
         return HttpResponse.badRequest(new InvalidParamError("email"));
       }
 
-      const accessToken = await this.authUseCase.auth({ email, password });
+      const accessToken = await this.authUseCase.auth(userData);
       if (!accessToken) {
         return HttpResponse.unauthorizedError();
       }
