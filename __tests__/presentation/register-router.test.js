@@ -81,4 +81,70 @@ describe("Reigster Router", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("name"));
   });
+
+  test("Should return 500 if invalid emailSender is received", async () => {
+    const registerUser = makeRegisterUserSpy();
+    const emailValidator = makeEmailValidatorSpy();
+    const suts = [
+      new RegisterRouter({ registerUser, emailSender: undefined, emailValidator }),
+      new RegisterRouter({ registerUser, emailSender: {}, emailValidator }),
+    ];
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    for (const sut of suts) {
+      const httpResponse = await sut.route(httpRequest);
+
+      expect(httpResponse.statusCode).toBe(500);
+      expect(httpResponse.body).toEqual(new ServerError());
+    }
+  });
+
+  test("Should return 500 if invalid registerUser is received", async () => {
+    const emailSender = makeEmailSenderSpy();
+    const emailValidator = makeEmailValidatorSpy();
+    const suts = [
+      new RegisterRouter({ registerUser: undefined, emailSender, emailValidator }),
+      new RegisterRouter({ registerUser: {}, emailSender, emailValidator }),
+    ];
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    for (const sut of suts) {
+      const httpResponse = await sut.route(httpRequest);
+
+      expect(httpResponse.statusCode).toBe(500);
+      expect(httpResponse.body).toEqual(new ServerError());
+    }
+  });
+
+  test("Should return 500 if invalid emailValidator is received", async () => {
+    const registerUser = makeRegisterUserSpy();
+    const emailSender = makeEmailSenderSpy();
+    const suts = [
+      new RegisterRouter({ registerUser, emailSender, emailValidator: undefined }),
+      new RegisterRouter({ registerUser, emailSender, emailValidator: {} }),
+    ];
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    for (const sut of suts) {
+      const httpResponse = await sut.route(httpRequest);
+
+      expect(httpResponse.statusCode).toBe(500);
+      expect(httpResponse.body).toEqual(new ServerError());
+    }
+  });
 });
