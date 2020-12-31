@@ -12,7 +12,7 @@ function makeSut () {
 
 function makeAuthUseCaseSpy () {
   class AuthUseCaseSpy {
-    async auth (email, password) {
+    async auth ({ email, password }) {
       this.email = email;
       this.password = password;
       return this.accessToken;
@@ -111,10 +111,10 @@ describe("Login Router", () => {
   });
 
   test("Should return 500 if invalid authUseCase is received", async () => {
+    const emailValidator = makeEmailValidatorSpy();
     const suts = [
-      new LoginRouter(),
-      new LoginRouter({ authUseCase: undefined }),
-      new LoginRouter({ authUseCase: {} }),
+      new LoginRouter({ authUseCase: undefined, emailValidator }),
+      new LoginRouter({ authUseCase: {}, emailValidator }),
     ];
     const httpRequest = {
       body: {
@@ -163,13 +163,17 @@ describe("Login Router", () => {
   test("Should return 500 if invalid emailValidator is received", async () => {
     const authUseCase = makeAuthUseCaseSpy();
     const suts = [
-      new LoginRouter(),
-      new LoginRouter({ authUseCase, emailValidator: undefined }),
-      new LoginRouter({ authUseCase, emailValidator: {} }),
+      new LoginRouter({ emailValidator: undefined, authUseCase }),
+      new LoginRouter({ emailValidator: {}, authUseCase }),
     ];
+    const httpRequest = {
+      body: {
+        email: "any_email@email.com",
+        password: "any_pass",
+      },
+    };
 
     for (const sut of suts) {
-      const httpRequest = { body: { email: "any_email@email.com", password: "any_pass" } };
       const httpResponse = await sut.route(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
@@ -188,5 +192,20 @@ describe("Login Router", () => {
     await sut.route(httpRequest);
 
     expect(emailValidatorSpy.email).toBe(httpRequest.body.email);
+  });
+
+  test("Should return 500 if no dependencies are received", async () => {
+    const sut = new LoginRouter();
+    const httpRequest = {
+      body: {
+        email: "any_email@email.com",
+        password: "any_pass",
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
   });
 });

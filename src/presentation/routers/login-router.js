@@ -8,32 +8,25 @@ export default class LoginRouter {
   }
 
   async route (httpRequest) {
-    if (
-      !httpRequest ||
-      !httpRequest.body ||
-      !this.authUseCase ||
-      !this.authUseCase.auth ||
-      !this.emailValidator ||
-      !this.emailValidator.validate
-    ) {
+    try {
+      const { email, password } = httpRequest.body;
+      if (!email) {
+        return HttpResponse.badRequest(new MissingParamError("email"));
+      }
+      if (!password) {
+        return HttpResponse.badRequest(new MissingParamError("password"));
+      }
+      if (!this.emailValidator.validate(email)) {
+        return HttpResponse.badRequest(new InvalidParamError("email"));
+      }
+
+      const accessToken = await this.authUseCase.auth({ email, password });
+      if (!accessToken) {
+        return HttpResponse.unauthorizedError();
+      }
+      return HttpResponse.ok({ accessToken });
+    } catch (error) {
       return HttpResponse.serverError();
     }
-
-    const { email, password } = httpRequest.body;
-    if (!email) {
-      return HttpResponse.badRequest(new MissingParamError("email"));
-    }
-    if (!password) {
-      return HttpResponse.badRequest(new MissingParamError("password"));
-    }
-    if (!this.emailValidator.validate(email)) {
-      return HttpResponse.badRequest(new InvalidParamError("email"));
-    }
-
-    const accessToken = await this.authUseCase.auth(email, password);
-    if (!accessToken) {
-      return HttpResponse.unauthorizedError();
-    }
-    return HttpResponse.ok({ accessToken });
   }
 }
