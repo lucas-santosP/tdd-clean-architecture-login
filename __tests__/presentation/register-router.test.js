@@ -5,13 +5,9 @@ function makeSut () {
   const registerUser = makeRegisterUserSpy();
   const emailSender = makeEmailSenderSpy();
   const emailValidator = makeEmailValidatorSpy();
-  const sut = new RegisterRouter({
-    registerUser,
-    emailSender,
-    emailValidator,
-  });
+  const sut = new RegisterRouter({ registerUser, emailSender, emailValidator });
 
-  return { sut, emailSender, emailValidator };
+  return { sut, registerUser, emailSender, emailValidator };
 }
 
 function makeRegisterUserSpy () {
@@ -95,6 +91,46 @@ describe("Register Router", () => {
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidParamError("email"));
+  });
+
+  test("Should call registerUser with correct params", async () => {
+    const { sut, registerUser } = makeSut();
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+    await sut.route(httpRequest);
+
+    expect(registerUser.email).toBe(httpRequest.body.email);
+    expect(registerUser.name).toBe(httpRequest.body.name);
+  });
+
+  test("Should call emailSender with correct params", async () => {
+    const { sut, emailSender } = makeSut();
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+    await sut.route(httpRequest);
+
+    expect(emailSender.email).toBe(httpRequest.body.email);
+  });
+
+  test("Should call emailValidator with correct params", async () => {
+    const { sut, emailValidator } = makeSut();
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+    await sut.route(httpRequest);
+
+    expect(emailValidator.email).toBe(httpRequest.body.email);
   });
 
   test("Should return 500 if invalid emailSender is received", async () => {
