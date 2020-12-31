@@ -1,10 +1,6 @@
 import LoginRouter from "../../src/presentation/routers/login-router";
-import {
-  MissingParamError,
-  UnauthorizedError,
-  ServerError,
-  InvalidParamError,
-} from "../../src/presentation/errors";
+import { UnauthorizedError, ServerError } from "../../src/presentation/errors";
+import { MissingParamError, InvalidParamError } from "../../src/utils/generic-erros";
 
 function makeSut () {
   const authUseCaseSpy = makeAuthUseCaseSpy();

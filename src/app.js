@@ -1,12 +1,12 @@
 import express from "express";
 
 class AppController {
-  constructor() {
+  constructor () {
     this.express = express();
     this.middlewares();
   }
 
-  middlewares() {
+  middlewares () {
     this.express.use(express.json());
   }
 }

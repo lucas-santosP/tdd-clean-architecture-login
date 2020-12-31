@@ -1,5 +1,6 @@
 import RegisterRouter from "../../src/presentation/routers/register-router";
-import { MissingParamError, ServerError, InvalidParamError } from "../../src/presentation/errors";
+import { ServerError } from "../../src/presentation/errors";
+import { MissingParamError, InvalidParamError } from "../../src/utils/generic-erros";
 
 function makeSut () {
   const registerUser = makeRegisterUserSpy();
