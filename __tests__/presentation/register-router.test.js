@@ -199,4 +199,73 @@ describe("Register Router", () => {
       expect(httpResponse.body).toEqual(new ServerError());
     }
   });
+
+  test("Should return 500 if emailSender throws", async () => {
+    const { sut, emailSender } = makeSut();
+    jest.spyOn(emailSender, "sendToUser").mockImplementation(() => {
+      throw new Error();
+    });
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
+  });
+
+  test("Should return 500 if registerUser throws", async () => {
+    const { sut, registerUser } = makeSut();
+    jest.spyOn(registerUser, "register").mockImplementation(() => {
+      throw new Error();
+    });
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
+  });
+
+  test("Should return 500 if emailValidator throws", async () => {
+    const { sut, emailValidator } = makeSut();
+    jest.spyOn(emailValidator, "validate").mockImplementation(() => {
+      throw new Error();
+    });
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
+  });
+
+  test("Should return 500 if no dependencies are received", async () => {
+    const sut = new RegisterRouter();
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
+  });
 });

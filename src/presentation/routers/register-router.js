@@ -21,16 +21,8 @@ export default class RegisterRouter {
       if (!this.emailValidator.validate(userData.email)) {
         return HttpResponse.badRequest(new InvalidParamError("email"));
       }
-
-      const registerUserResponse = await this.registerUser.register(userData);
-      if (registerUserResponse.error) {
-        return HttpResponse.badRequest(registerUserResponse.error);
-      }
-
-      const sendEmailResponse = await this.emailSender.sendToUser(userData);
-      if (sendEmailResponse.error) {
-        return HttpResponse.badRequest(sendEmailResponse.error);
-      }
+      await this.registerUser.register(userData);
+      await this.emailSender.sendToUser(userData);
 
       return HttpResponse.ok(userData);
     } catch (error) {
