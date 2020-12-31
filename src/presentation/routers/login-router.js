@@ -1,6 +1,5 @@
 import { HttpResponse } from "../helpers";
 import { MissingParamError, InvalidParamError } from "../errors";
-
 export default class LoginRouter {
   constructor ({ authUseCase, emailValidator } = {}) {
     this.authUseCase = authUseCase;
@@ -23,11 +22,11 @@ export default class LoginRouter {
     if (!email) {
       return HttpResponse.badRequest(new MissingParamError("email"));
     }
-    if (!this.emailValidator.validate(email)) {
-      return HttpResponse.badRequest(new InvalidParamError("email"));
-    }
     if (!password) {
       return HttpResponse.badRequest(new MissingParamError("password"));
+    }
+    if (!this.emailValidator.validate(email)) {
+      return HttpResponse.badRequest(new InvalidParamError("email"));
     }
 
     const accessToken = await this.authUseCase.auth(email, password);
