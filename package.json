@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "jest --watch --passWithNoTests --onlyChanged",
     "test-staged": "jest --passWithNoTests --findRelatedTests --onlyChanged --silent",
+    "test-all": "jest --passWithNoTests",
     "test-ci": "jest --coverage --noStackTrace --silent"
   },
   "devDependencies": {
