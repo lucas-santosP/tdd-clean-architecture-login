@@ -133,4 +133,13 @@ describe("Auth usecase", () => {
 
     expect(tokenGenerator.userId).toBe(findUserByEmailRepository.user.id);
   });
+
+  test("Should return an accessToken if valid credentials are received", async () => {
+    const { sut, tokenGenerator } = makeSut();
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    const accessToken = await sut.auth(userData);
+
+    expect(tokenGenerator.accessToken).toBe(accessToken);
+    expect(tokenGenerator.accessToken).toBeTruthy();
+  });
 });
