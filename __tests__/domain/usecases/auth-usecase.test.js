@@ -1,4 +1,4 @@
-import { MissingParamError } from "../../../src/utils/generic-erros";
+import { InvalidParamError, MissingParamError } from "../../../src/utils/generic-erros";
 
 class AuthUseCase {
   constructor ({ findUserByEmailRepository } = {}) {
@@ -11,6 +11,12 @@ class AuthUseCase {
     }
     if (!password) {
       throw new MissingParamError("password");
+    }
+    if (!this.findUserByEmailRepository) {
+      throw new MissingParamError("findUserByEmailRepository");
+    }
+    if (!this.findUserByEmailRepository.find) {
+      throw new InvalidParamError("findUserByEmailRepository");
     }
     await this.findUserByEmailRepository.find(email);
 
@@ -52,5 +58,21 @@ describe("Auth usecase", () => {
     await sut.auth(userData);
 
     expect(findUserByEmailRepository.email).toBe(userData.email);
+  });
+
+  test("Should throws if no findUserByEmailRepository is received", async () => {
+    const sut = new AuthUseCase({ findUserByEmailRepository: undefined });
+    const userData = { email: "any_email@email.com", password: "any_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow(new MissingParamError("findUserByEmailRepository"));
+  });
+
+  test("Should throws if invalid findUserByEmailRepository is received", async () => {
+    const sut = new AuthUseCase({ findUserByEmailRepository: {} });
+    const userData = { email: "any_email@email.com", password: "any_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow(new InvalidParamError("findUserByEmailRepository"));
   });
 });
