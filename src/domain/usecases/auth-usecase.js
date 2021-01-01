@@ -1,8 +1,9 @@
-import { InvalidParamError, MissingParamError } from "../../utils/generic-erros";
+import { MissingParamError } from "../../utils/generic-erros";
 
 export default class AuthUseCase {
-  constructor ({ findUserByEmailRepository } = {}) {
+  constructor ({ findUserByEmailRepository, encrypter } = {}) {
     this.findUserByEmailRepository = findUserByEmailRepository;
+    this.encrypter = encrypter;
   }
 
   async auth ({ email, password }) {
@@ -12,17 +13,12 @@ export default class AuthUseCase {
     if (!password) {
       throw new MissingParamError("password");
     }
-    if (!this.findUserByEmailRepository) {
-      throw new MissingParamError("findUserByEmailRepository");
-    }
-    if (!this.findUserByEmailRepository.find) {
-      throw new InvalidParamError("findUserByEmailRepository");
-    }
+
     const user = await this.findUserByEmailRepository.find(email);
     if (!user) {
       return null;
     }
-
+    await this.encrypter.compare(password, user.password);
     return null;
   }
 }

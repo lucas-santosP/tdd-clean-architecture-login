@@ -9,11 +9,19 @@ function makeSut () {
     }
   }
 
-  const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
-  findUserByEmailRepository.user = { email: "valid_emai@email.com", password: "valid_pass" }; // mock valida data as default
-  const sut = new AuthUseCase({ findUserByEmailRepository });
+  class EncrypterSpy {
+    async compare (password, hashedPassword) {
+      this.password = password;
+      this.hashedPassword = hashedPassword;
+    }
+  }
 
-  return { sut, findUserByEmailRepository };
+  const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
+  const encrypter = new EncrypterSpy();
+  findUserByEmailRepository.user = { email: "valid_repo_email@email.com", password: "hashed_pass" }; // mock valida data as default
+  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter });
+
+  return { sut, findUserByEmailRepository, encrypter };
 }
 
 describe("Auth usecase", () => {
@@ -41,7 +49,7 @@ describe("Auth usecase", () => {
     expect(findUserByEmailRepository.email).toBe(userData.email);
   });
 
-  test("Should throws if invalid findUserByEmailRepository is received", async () => {
+  test("Should throws if invalid dependency is received", async () => {
     const suts = [
       new AuthUseCase(),
       new AuthUseCase({ findUserByEmailRepository: undefined }),
@@ -71,5 +79,14 @@ describe("Auth usecase", () => {
     const accessToken = await sut.auth(userData);
 
     await expect(accessToken).toBeNull();
+  });
+
+  test("Should call encrypter with correct params", async () => {
+    const { sut, encrypter, findUserByEmailRepository } = makeSut();
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    await sut.auth(userData);
+
+    await expect(encrypter.password).toBe(userData.password);
+    await expect(encrypter.hashedPassword).toBe(findUserByEmailRepository.user.password);
   });
 });
