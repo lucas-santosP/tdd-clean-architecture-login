@@ -62,10 +62,14 @@ describe("Auth usecase", () => {
   });
 
   test("Should throws if invalid dependency is received", async () => {
+    const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
+    const encrypter = makeEncrypterSpy();
     const suts = [
       new AuthUseCase(),
-      new AuthUseCase({ findUserByEmailRepository: undefined }),
-      new AuthUseCase({ findUserByEmailRepository: {} }),
+      new AuthUseCase({ findUserByEmailRepository: undefined, encrypter }),
+      new AuthUseCase({ findUserByEmailRepository: {}, encrypter }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter: undefined }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter: {} }),
     ];
     const userData = { email: "any_email@email.com", password: "any_pass" };
 
@@ -82,7 +86,7 @@ describe("Auth usecase", () => {
     const userData = { email: "invalid_email@email.com", password: "any_pass" };
     const accessToken = await sut.auth(userData);
 
-    await expect(accessToken).toBeNull();
+    expect(accessToken).toBeNull();
   });
 
   test("Should return null if invalid password is received", async () => {
@@ -90,7 +94,7 @@ describe("Auth usecase", () => {
     const userData = { email: "valid_email@email.com", password: "invalid_pass" };
     const accessToken = await sut.auth(userData);
 
-    await expect(accessToken).toBeNull();
+    expect(accessToken).toBeNull();
   });
 
   test("Should call encrypter with correct params", async () => {
@@ -98,7 +102,7 @@ describe("Auth usecase", () => {
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
-    await expect(encrypter.password).toBe(userData.password);
-    await expect(encrypter.hashedPassword).toBe(findUserByEmailRepository.user.password);
+    expect(encrypter.password).toBe(userData.password);
+    expect(encrypter.hashedPassword).toBe(findUserByEmailRepository.user.password);
   });
 });
