@@ -83,12 +83,16 @@ describe("Auth usecase", () => {
   test("Should throws if invalid dependency is received", async () => {
     const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
     const encrypter = makeEncrypterSpy();
+    const tokenGenerator = makeTokenGeneratorSpy();
     const suts = [
       new AuthUseCase(),
-      new AuthUseCase({ findUserByEmailRepository: undefined, encrypter }),
-      new AuthUseCase({ findUserByEmailRepository: {}, encrypter }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter: undefined }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter: {} }),
+      new AuthUseCase({}),
+      new AuthUseCase({ findUserByEmailRepository: undefined, encrypter, tokenGenerator }),
+      new AuthUseCase({ findUserByEmailRepository: {}, encrypter, tokenGenerator }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter: undefined, tokenGenerator }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter: {}, tokenGenerator }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator: undefined }),
+      new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator: {} }),
     ];
     const userData = { email: "any_email@email.com", password: "any_pass" };
 
