@@ -4,9 +4,10 @@ import AuthUseCase from "../../../src/domain/usecases/auth-usecase";
 function makeSut () {
   const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
   const encrypter = makeEncrypterSpy();
-  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter });
+  const tokenGenerator = makeTokenGeneratorSpy();
+  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator });
 
-  return { sut, findUserByEmailRepository, encrypter };
+  return { sut, findUserByEmailRepository, encrypter, tokenGenerator };
 }
 
 function makeFindUserByEmailRepositorySpy () {
@@ -18,7 +19,12 @@ function makeFindUserByEmailRepositorySpy () {
   }
 
   const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
-  findUserByEmailRepository.user = { email: "valid_repo_email@email.com", password: "hashed_pass" }; // mock valida data as default
+  // mock valid data as default
+  findUserByEmailRepository.user = {
+    email: "valid_repo_email@email.com",
+    password: "hashed_pass",
+    id: "any_id",
+  };
   return findUserByEmailRepository;
 }
 
@@ -34,6 +40,19 @@ function makeEncrypterSpy () {
   const encrypter = new EncrypterSpy();
   encrypter.isValid = true;
   return encrypter;
+}
+
+function makeTokenGeneratorSpy () {
+  class TokenGeneratorSpy {
+    async generate (userId) {
+      this.userId = userId;
+      return this.accessToken;
+    }
+  }
+
+  const tokenGenerator = new TokenGeneratorSpy();
+  tokenGenerator.accessToken = "any_token";
+  return tokenGenerator;
 }
 
 describe("Auth usecase", () => {
@@ -90,7 +109,8 @@ describe("Auth usecase", () => {
   });
 
   test("Should return null if invalid password is received", async () => {
-    const { sut } = makeSut();
+    const { sut, encrypter } = makeSut();
+    encrypter.isValid = false;
     const userData = { email: "valid_email@email.com", password: "invalid_pass" };
     const accessToken = await sut.auth(userData);
 
@@ -104,5 +124,13 @@ describe("Auth usecase", () => {
 
     expect(encrypter.password).toBe(userData.password);
     expect(encrypter.hashedPassword).toBe(findUserByEmailRepository.user.password);
+  });
+
+  test("Should call tokenGenerator with correct params", async () => {
+    const { sut, tokenGenerator, findUserByEmailRepository } = makeSut();
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    await sut.auth(userData);
+
+    expect(tokenGenerator.userId).toBe(findUserByEmailRepository.user.id);
   });
 });
