@@ -18,7 +18,10 @@ class AuthUseCase {
     if (!this.findUserByEmailRepository.find) {
       throw new InvalidParamError("findUserByEmailRepository");
     }
-    await this.findUserByEmailRepository.find(email);
+    const user = await this.findUserByEmailRepository.find(email);
+    if (!user) {
+      return null;
+    }
 
     return "valid_token";
   }
@@ -74,5 +77,12 @@ describe("Auth usecase", () => {
     const promise = sut.auth(userData);
 
     await expect(promise).rejects.toThrow(new InvalidParamError("findUserByEmailRepository"));
+  });
+
+  test("Should return null if findUserByEmailRepository return null", async () => {
+    const { sut } = makeSut();
+    const accessToken = await sut.auth({ email: "invalid_email@email.com", password: "any_pass" });
+
+    await expect(accessToken).toBeNull();
   });
 });
