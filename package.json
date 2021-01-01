@@ -7,7 +7,7 @@
     "dev": "nodemon --exec babel-node src/server.js",
     "build": "babel ./src --out-dir ./dist",
     "lint": "eslint",
-    "test": "jest --watch --passWithNoTests --onlyChanged",
+    "test": "jest --watch --passWithNoTests --onlyChanged --silent",
     "test-staged": "jest --passWithNoTests --findRelatedTests --onlyChanged --silent",
     "test-all": "jest --passWithNoTests",
     "test-ci": "jest --coverage --noStackTrace --silent"
