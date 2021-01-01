@@ -33,14 +33,14 @@ function makeSut () {
 
 describe("Auth usecase", () => {
   test("Should throw an error if no email is received", async () => {
-    const sut = new AuthUseCase();
+    const { sut } = makeSut();
     const promise = sut.auth({ email: undefined, password: "any_pass" });
 
     await expect(promise).rejects.toThrow(new MissingParamError("email"));
   });
 
   test("Should throw an error if no password is received", async () => {
-    const sut = new AuthUseCase();
+    const { sut } = makeSut();
     const promise = sut.auth({ email: "any_email@email.com", password: undefined });
 
     await expect(promise).rejects.toThrow(new MissingParamError("password"));
