@@ -2,6 +2,14 @@ import { MissingParamError } from "../../../src/utils/generic-erros";
 import AuthUseCase from "../../../src/domain/usecases/auth-usecase";
 
 function makeSut () {
+  const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
+  const encrypter = makeEncrypterSpy();
+  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter });
+
+  return { sut, findUserByEmailRepository, encrypter };
+}
+
+function makeFindUserByEmailRepositorySpy () {
   class FindUserByEmailRepositorySpy {
     async find (email) {
       this.email = email;
@@ -9,19 +17,23 @@ function makeSut () {
     }
   }
 
+  const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
+  findUserByEmailRepository.user = { email: "valid_repo_email@email.com", password: "hashed_pass" }; // mock valida data as default
+  return findUserByEmailRepository;
+}
+
+function makeEncrypterSpy () {
   class EncrypterSpy {
     async compare (password, hashedPassword) {
       this.password = password;
       this.hashedPassword = hashedPassword;
+      return this.isValid;
     }
   }
 
-  const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
   const encrypter = new EncrypterSpy();
-  findUserByEmailRepository.user = { email: "valid_repo_email@email.com", password: "hashed_pass" }; // mock valida data as default
-  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter });
-
-  return { sut, findUserByEmailRepository, encrypter };
+  encrypter.isValid = true;
+  return encrypter;
 }
 
 describe("Auth usecase", () => {
