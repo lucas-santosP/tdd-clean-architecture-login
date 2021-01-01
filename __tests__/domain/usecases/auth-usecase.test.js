@@ -1,39 +1,13 @@
 import { InvalidParamError, MissingParamError } from "../../../src/utils/generic-erros";
-
-class AuthUseCase {
-  constructor ({ findUserByEmailRepository } = {}) {
-    this.findUserByEmailRepository = findUserByEmailRepository;
-  }
-
-  async auth ({ email, password }) {
-    if (!email) {
-      throw new MissingParamError("email");
-    }
-    if (!password) {
-      throw new MissingParamError("password");
-    }
-    if (!this.findUserByEmailRepository) {
-      throw new MissingParamError("findUserByEmailRepository");
-    }
-    if (!this.findUserByEmailRepository.find) {
-      throw new InvalidParamError("findUserByEmailRepository");
-    }
-    const user = await this.findUserByEmailRepository.find(email);
-    if (!user) {
-      return null;
-    }
-
-    return "valid_token";
-  }
-}
-
-class FindUserByEmailRepositorySpy {
-  async find (email) {
-    this.email = email;
-  }
-}
+import AuthUseCase from "../../../src/domain/usecases/auth-usecase";
 
 function makeSut () {
+  class FindUserByEmailRepositorySpy {
+    async find (email) {
+      this.email = email;
+    }
+  }
+
   const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
   const sut = new AuthUseCase({ findUserByEmailRepository });
 
@@ -43,14 +17,16 @@ function makeSut () {
 describe("Auth usecase", () => {
   test("Should throw an error if no email is received", async () => {
     const { sut } = makeSut();
-    const promise = sut.auth({ email: undefined, password: "any_pass" });
+    const userData = { email: undefined, password: "any_pass" };
+    const promise = sut.auth(userData);
 
     await expect(promise).rejects.toThrow(new MissingParamError("email"));
   });
 
   test("Should throw an error if no password is received", async () => {
     const { sut } = makeSut();
-    const promise = sut.auth({ email: "any_email@email.com", password: undefined });
+    const userData = { email: "any_email@email.com", password: undefined };
+    const promise = sut.auth(userData);
 
     await expect(promise).rejects.toThrow(new MissingParamError("password"));
   });
@@ -81,7 +57,8 @@ describe("Auth usecase", () => {
 
   test("Should return null if findUserByEmailRepository return null", async () => {
     const { sut } = makeSut();
-    const accessToken = await sut.auth({ email: "invalid_email@email.com", password: "any_pass" });
+    const userData = { email: "invalid_email@email.com", password: "any_pass" };
+    const accessToken = await sut.auth(userData);
 
     await expect(accessToken).toBeNull();
   });
