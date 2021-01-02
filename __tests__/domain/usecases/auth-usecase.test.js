@@ -5,9 +5,15 @@ function makeSut () {
   const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
   const encrypter = makeEncrypterSpy();
   const tokenGenerator = makeTokenGeneratorSpy();
-  const sut = new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator });
+  const updateAccessTokenRepository = makeUpdateAccessTokenRepositorySpy();
+  const sut = new AuthUseCase({
+    findUserByEmailRepository,
+    encrypter,
+    tokenGenerator,
+    updateAccessTokenRepository,
+  });
 
-  return { sut, findUserByEmailRepository, encrypter, tokenGenerator };
+  return { sut, findUserByEmailRepository, encrypter, tokenGenerator, updateAccessTokenRepository };
 }
 
 function makeFindUserByEmailRepositorySpy () {
@@ -53,6 +59,17 @@ function makeTokenGeneratorSpy () {
   const tokenGenerator = new TokenGeneratorSpy();
   tokenGenerator.accessToken = "any_token";
   return tokenGenerator;
+}
+
+function makeUpdateAccessTokenRepositorySpy () {
+  class UpdateAccessTokenRepositorySp {
+    async update (userId, accessToken) {
+      this.userId = userId;
+      this.accessToken = accessToken;
+    }
+  }
+
+  return new UpdateAccessTokenRepositorySp();
 }
 
 describe("Auth usecase", () => {
@@ -169,6 +186,20 @@ describe("Auth usecase", () => {
     await sut.auth(userData);
 
     expect(tokenGenerator.userId).toBe(findUserByEmailRepository.user.id);
+  });
+
+  test("Should call updateAccessTokenRepository with correct params", async () => {
+    const {
+      sut,
+      findUserByEmailRepository,
+      tokenGenerator,
+      updateAccessTokenRepository,
+    } = makeSut();
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    await sut.auth(userData);
+
+    expect(updateAccessTokenRepository.userId).toBe(findUserByEmailRepository.user.id);
+    expect(updateAccessTokenRepository.accessToken).toBe(tokenGenerator.accessToken);
   });
 
   test("Should return an accessToken if valid credentials are received", async () => {
