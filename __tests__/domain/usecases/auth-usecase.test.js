@@ -80,7 +80,7 @@ describe("Auth usecase", () => {
     expect(findUserByEmailRepository.email).toBe(userData.email);
   });
 
-  test("Should throws if invalid dependency is received", async () => {
+  test("Should throw if invalid dependency is received", async () => {
     const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
     const encrypter = makeEncrypterSpy();
     const tokenGenerator = makeTokenGeneratorSpy();
@@ -101,6 +101,39 @@ describe("Auth usecase", () => {
 
       await expect(promise).rejects.toThrow();
     }
+  });
+
+  test("Should throw if findUserByEmailRepository throws", async () => {
+    const { sut, findUserByEmailRepository } = makeSut();
+    jest.spyOn(findUserByEmailRepository, "find").mockImplementation(() => {
+      throw new Error();
+    });
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow();
+  });
+
+  test("Should throw if encrypter throws", async () => {
+    const { sut, encrypter } = makeSut();
+    jest.spyOn(encrypter, "compare").mockImplementation(() => {
+      throw new Error();
+    });
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow();
+  });
+
+  test("Should throw if tokenGenerator throws", async () => {
+    const { sut, tokenGenerator } = makeSut();
+    jest.spyOn(tokenGenerator, "generate").mockImplementation(() => {
+      throw new Error();
+    });
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow();
   });
 
   test("Should return null if invalid email is received", async () => {
