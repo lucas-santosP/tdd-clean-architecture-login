@@ -57,7 +57,7 @@ describe("User Repository", () => {
     });
     const user = await sut.findByEmail(fakeUser.email);
 
-    expect(user).toEqual(fakeUser.dataValues);
+    expect(user.dataValues).toEqual(fakeUser.dataValues);
   });
 
   test("Find by email should throw if no email is received", async () => {
