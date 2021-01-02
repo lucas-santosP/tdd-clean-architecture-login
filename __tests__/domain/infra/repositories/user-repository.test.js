@@ -7,7 +7,7 @@ let userModel;
 
 function makeSut () {
   const sut = new UserRepository(userModel);
-  return { sut };
+  return { sut, userModel };
 }
 
 describe("User Repository", () => {
@@ -18,6 +18,7 @@ describe("User Repository", () => {
         id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
         name: { type: DataTypes.TEXT, allowNull: false },
         email: { type: DataTypes.STRING, allowNull: false },
+        password: { type: DataTypes.STRING, allowNull: false },
         createdAt: { type: DataTypes.DATE, allowNull: false },
         updatedAt: { type: DataTypes.DATE, allowNull: false },
       });
@@ -25,6 +26,7 @@ describe("User Repository", () => {
       userModel = sequelize.define("user", {
         name: { type: DataTypes.STRING, allowNull: false },
         email: { type: DataTypes.STRING, allowNull: false },
+        password: { type: DataTypes.STRING, allowNull: false },
       });
     } catch (error) {
       console.log("Error connecting!", error);
@@ -47,12 +49,15 @@ describe("User Repository", () => {
   });
 
   test("Find by email should return an user if user is found", async () => {
-    const { sut } = makeSut();
-    const userData = { name: "any_name", email: "valid_email@email.com" };
-    await userModel.create(userData);
-    const user = await sut.findByEmail(userData.email);
+    const { sut, userModel } = makeSut();
+    const fakeUser = await userModel.create({
+      name: "any_name",
+      email: "valid_email@email.com",
+      password: "hashed_password",
+    });
+    const user = await sut.findByEmail(fakeUser.email);
 
-    expect(user.email).toBe(userData.email);
+    expect(user).toEqual(fakeUser.dataValues);
   });
 
   test("Find by email should throw if no email is received", async () => {
