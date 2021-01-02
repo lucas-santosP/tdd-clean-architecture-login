@@ -10,21 +10,8 @@ jest.mock("jsonwebtoken", () => ({
 }));
 
 import jwt from "jsonwebtoken";
+import { TokenGenerator } from "../../../src/utils/helpers";
 import { MissingParamError } from "../../../src/utils/generic-erros";
-
-class TokenGenerator {
-  constructor (secretKey) {
-    this.secretKey = secretKey;
-  }
-
-  async generate (id) {
-    if (!id) throw new MissingParamError("id");
-    if (!this.secretKey) throw new MissingParamError("secretKey");
-
-    const token = jwt.sign(id, this.secretKey);
-    return token;
-  }
-}
 
 function makeSut () {
   const sut = new TokenGenerator("secret_key");
