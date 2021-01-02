@@ -1,22 +1,9 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { MissingParamError } from "../../../../src/utils/generic-erros";
+import UserRepository from "../../../../src/domain/infra/repositories/user-repository.js";
 
 const sequelize = new Sequelize("sqlite::memory:", { logging: false });
 let userModel;
-
-class UserRepository {
-  constructor (userModel) {
-    this.userModel = userModel;
-  }
-
-  async findByEmail (email) {
-    if (!email) throw new MissingParamError("email");
-    if (!this.userModel) throw new MissingParamError("userModel");
-
-    const user = await this.userModel.findOne({ where: { email } });
-    return user;
-  }
-}
 
 function makeSut () {
   const sut = new UserRepository(userModel);
