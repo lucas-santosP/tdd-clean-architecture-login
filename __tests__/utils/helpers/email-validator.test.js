@@ -10,6 +10,7 @@ jest.mock("validator", () => ({
 
 import validator from "validator";
 import { EmailValidator } from "../../../src/utils/helpers";
+import { MissingParamError } from "../../../src/utils/generic-erros";
 
 function makeSut () {
   const sut = new EmailValidator();
@@ -37,5 +38,13 @@ describe("Email Validator", () => {
     sut.validate("any_email@email.com");
 
     expect(validator.email).toBe("any_email@email.com");
+  });
+
+  test("Should throw if no email is received", async () => {
+    const { sut } = makeSut();
+
+    expect(() => {
+      sut.validate();
+    }).toThrow(new MissingParamError("email"));
   });
 });
