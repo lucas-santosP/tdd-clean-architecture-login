@@ -18,14 +18,14 @@ function makeSut () {
 }
 
 describe("Email Validator", () => {
-  test("Should return true if valid email is received", async () => {
+  test("Should return true if valid email is received", () => {
     const { sut } = makeSut();
     const isEmailValid = sut.validate("valid_email@email.com");
 
     expect(isEmailValid).toBe(true);
   });
 
-  test("Should return false if invalid email is received", async () => {
+  test("Should return false if invalid email is received", () => {
     const { sut } = makeSut();
     validator.isEmailValid = false;
     const isEmailValid = sut.validate("invalid_email@email.com");
@@ -33,14 +33,14 @@ describe("Email Validator", () => {
     expect(isEmailValid).toBe(false);
   });
 
-  test("Should call validator with correct params", async () => {
+  test("Should call validator with correct params", () => {
     const { sut } = makeSut();
     sut.validate("any_email@email.com");
 
     expect(validator.email).toBe("any_email@email.com");
   });
 
-  test("Should throw if no email is received", async () => {
+  test("Should throw if no email is received", () => {
     const { sut } = makeSut();
 
     expect(() => {
