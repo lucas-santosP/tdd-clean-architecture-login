@@ -10,9 +10,13 @@ jest.mock("bcrypt", () => ({
 }));
 
 import bcrypt from "bcrypt";
+import { MissingParamError } from "../../../src/utils/generic-erros";
 
 class Encrypter {
   async compare (value, hashedValue) {
+    if (!value) throw new MissingParamError("value");
+    if (!hashedValue) throw new MissingParamError("hashedValue");
+
     const isValid = await bcrypt.compare(value, hashedValue);
     return isValid;
   }
@@ -40,5 +44,19 @@ describe("Encrypter", () => {
 
     expect(bcrypt.value).toBe("any_value");
     expect(bcrypt.hash).toBe("hashed_value");
+  });
+
+  test("Should throw if no value param is received", async () => {
+    const sut = new Encrypter();
+    const promise = sut.compare();
+
+    await expect(promise).rejects.toThrow(new MissingParamError("value"));
+  });
+
+  test("Should throw if no hashedValue param is received", async () => {
+    const sut = new Encrypter();
+    const promise = sut.compare("any_value");
+
+    await expect(promise).rejects.toThrow(new MissingParamError("hashedValue"));
   });
 });
