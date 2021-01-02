@@ -72,14 +72,6 @@ describe("Auth usecase", () => {
     await expect(promise).rejects.toThrow(new MissingParamError("password"));
   });
 
-  test("Should call findUserByEmail with correct params", async () => {
-    const { sut, findUserByEmailRepository } = makeSut();
-    const userData = { email: "any_email@email.com", password: "any_pass" };
-    await sut.auth(userData);
-
-    expect(findUserByEmailRepository.email).toBe(userData.email);
-  });
-
   test("Should throw if invalid dependency is received", async () => {
     const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
     const encrypter = makeEncrypterSpy();
@@ -152,6 +144,14 @@ describe("Auth usecase", () => {
     const accessToken = await sut.auth(userData);
 
     expect(accessToken).toBeNull();
+  });
+
+  test("Should call findUserByEmail with correct params", async () => {
+    const { sut, findUserByEmailRepository } = makeSut();
+    const userData = { email: "any_email@email.com", password: "any_pass" };
+    await sut.auth(userData);
+
+    expect(findUserByEmailRepository.email).toBe(userData.email);
   });
 
   test("Should call encrypter with correct params", async () => {
