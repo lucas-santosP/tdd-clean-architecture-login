@@ -10,19 +10,23 @@ jest.mock("jsonwebtoken", () => ({
 }));
 
 import jwt from "jsonwebtoken";
+import { MissingParamError } from "../../../src/utils/generic-erros";
 
-function makeSut () {
-  class TokenGenerator {
-    constructor (secretKey) {
-      this.secretKey = secretKey;
-    }
-
-    async generate (id) {
-      this.id = id;
-      return jwt.sign(id, this.secretKey);
-    }
+class TokenGenerator {
+  constructor (secretKey) {
+    this.secretKey = secretKey;
   }
 
+  async generate (id) {
+    if (!id) throw new MissingParamError("id");
+    if (!this.secretKey) throw new MissingParamError("secretKey");
+
+    const token = jwt.sign(id, this.secretKey);
+    return token;
+  }
+}
+
+function makeSut () {
   const sut = new TokenGenerator("secret_key");
   return { sut };
 }
@@ -49,5 +53,19 @@ describe("Token Generator", () => {
 
     expect(jwt.payload).toBe("any_id");
     expect(jwt.secretKey).toBe(sut.secretKey);
+  });
+
+  test("Should throw if no secretKey param is received", async () => {
+    const sut = new TokenGenerator();
+    const promise = sut.generate("any_id");
+
+    await expect(promise).rejects.toThrow(new MissingParamError("secretKey"));
+  });
+
+  test("Should throw if no id param is received", async () => {
+    const { sut } = makeSut();
+    const promise = sut.generate();
+
+    await expect(promise).rejects.toThrow(new MissingParamError("id"));
   });
 });
