@@ -93,15 +93,34 @@ describe("Auth usecase", () => {
     const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
     const encrypter = makeEncrypterSpy();
     const tokenGenerator = makeTokenGeneratorSpy();
+    const updateAccessTokenRepository = makeUpdateAccessTokenRepositorySpy();
     const suts = [
       new AuthUseCase(),
       new AuthUseCase({}),
-      new AuthUseCase({ findUserByEmailRepository: undefined, encrypter, tokenGenerator }),
-      new AuthUseCase({ findUserByEmailRepository: {}, encrypter, tokenGenerator }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter: undefined, tokenGenerator }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter: {}, tokenGenerator }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator: undefined }),
-      new AuthUseCase({ findUserByEmailRepository, encrypter, tokenGenerator: {} }),
+      new AuthUseCase({
+        findUserByEmailRepository: {},
+        encrypter,
+        tokenGenerator,
+        updateAccessTokenRepository,
+      }),
+      new AuthUseCase({
+        findUserByEmailRepository,
+        encrypter: {},
+        tokenGenerator,
+        updateAccessTokenRepository,
+      }),
+      new AuthUseCase({
+        findUserByEmailRepository,
+        encrypter,
+        tokenGenerator: {},
+        updateAccessTokenRepository,
+      }),
+      new AuthUseCase({
+        findUserByEmailRepository,
+        encrypter,
+        tokenGenerator,
+        updateAccessTokenRepository: {},
+      }),
     ];
     const userData = { email: "any_email@email.com", password: "any_pass" };
 
@@ -137,6 +156,17 @@ describe("Auth usecase", () => {
   test("Should throw if tokenGenerator throws", async () => {
     const { sut, tokenGenerator } = makeSut();
     jest.spyOn(tokenGenerator, "generate").mockImplementation(() => {
+      throw new Error();
+    });
+    const userData = { email: "valid_email@email.com", password: "valid_pass" };
+    const promise = sut.auth(userData);
+
+    await expect(promise).rejects.toThrow();
+  });
+
+  test("Should throw if updateAccessTokenRepository throws", async () => {
+    const { sut, updateAccessTokenRepository } = makeSut();
+    jest.spyOn(updateAccessTokenRepository, "update").mockImplementation(() => {
       throw new Error();
     });
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
