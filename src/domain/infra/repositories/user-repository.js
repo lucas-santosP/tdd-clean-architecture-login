@@ -10,6 +10,7 @@ export default class UserRepository {
     if (!this.userModel) throw new MissingParamError("userModel");
 
     const user = await this.userModel.findOne({ where: { email } });
-    return user;
+    if (!user) return null;
+    return user.dataValues;
   }
 }
