@@ -1,12 +1,17 @@
+/* eslint-disable import/first */
+jest.mock("validator", () => ({
+  isEmailValid: true,
+
+  isEmail (email) {
+    this.email = email;
+    return this.isEmailValid;
+  },
+}));
+
 import validator from "validator";
+import { EmailValidator } from "../../../src/utils/helpers";
 
 function makeSut () {
-  class EmailValidator {
-    validate (email) {
-      return validator.isEmail(email);
-    }
-  }
-
   const sut = new EmailValidator();
   return { sut };
 }
