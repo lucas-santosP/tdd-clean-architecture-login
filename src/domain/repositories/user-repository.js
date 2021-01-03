@@ -21,4 +21,12 @@ export default class UserRepository {
     );
     return user;
   }
+
+  async updateAccessToken (userId, accessToken) {
+    if (!userId) throw new MissingParamError("userId");
+    if (!accessToken) throw new MissingParamError("accessToken");
+    if (!this.userModel) throw new MissingParamError("userModel");
+
+    await this.userModel.updateOne({ _id: userId }, { $set: { accessToken } });
+  }
 }
