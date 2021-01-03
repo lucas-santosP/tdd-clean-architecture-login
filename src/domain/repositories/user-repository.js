@@ -1,4 +1,4 @@
-import { MissingParamError } from "../../../utils/generic-erros";
+import { MissingParamError } from "../../utils/generic-erros";
 
 export default class UserRepository {
   constructor (userModel) {

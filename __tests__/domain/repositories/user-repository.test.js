@@ -1,6 +1,6 @@
-import MongoHelper from "../../../../src/domain/infra/helpers/mongo-helper";
-import UserRepository from "../../../../src/domain/infra/repositories/user-repository.js";
-import { MissingParamError } from "../../../../src/utils/generic-erros";
+import MongoHelper from "../../../src/domain/repositories/helpers/mongo-helper";
+import UserRepository from "../../../src/domain/repositories/user-repository.js";
+import { MissingParamError } from "../../../src/utils/generic-erros";
 
 let userModel;
 
@@ -23,14 +23,14 @@ describe("User Repository", () => {
     await MongoHelper.disconnect();
   });
 
-  test("Find by email should return null if no user is found", async () => {
+  test("Method findByEmail should return null if no user is found", async () => {
     const { sut } = makeSut();
     const user = await sut.findByEmail("invalid_email@email.com");
 
     expect(user).toBeNull();
   });
 
-  test("Find by email should return an user if user is found", async () => {
+  test("Method findByEmail should return an user if user is found", async () => {
     const { sut, userModel } = makeSut();
     const fakeUser = await userModel.insertOne({
       name: "any_name",
@@ -46,14 +46,14 @@ describe("User Repository", () => {
     });
   });
 
-  test("Find by email should throw if no email is received", async () => {
+  test("Method findByEmail should throw if no email is received", async () => {
     const { sut } = makeSut();
     const promise = sut.findByEmail();
 
     await expect(promise).rejects.toThrow(new MissingParamError("email"));
   });
 
-  test("Find by email should throw if no userModel is received", async () => {
+  test("Method findByEmail should throw if no userModel is received", async () => {
     const sut = new UserRepository();
     const promise = sut.findByEmail("valid_email@email.com");
 
