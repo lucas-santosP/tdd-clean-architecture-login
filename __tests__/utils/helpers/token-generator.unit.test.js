@@ -38,7 +38,7 @@ describe("Token Generator", () => {
     const { sut } = makeSut();
     await sut.generate("any_id");
 
-    expect(jwt.payload).toBe("any_id");
+    expect(jwt.payload).toEqual({ _id: "any_id" });
     expect(jwt.secretKey).toBe(sut.secretKey);
   });
 
