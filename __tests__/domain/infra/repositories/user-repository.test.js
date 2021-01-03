@@ -1,8 +1,7 @@
-import { Sequelize, DataTypes } from "sequelize";
-import { MissingParamError } from "../../../../src/utils/generic-erros";
+import MongoHelper from "../../../../src/domain/infra/helpers/mongo-helper";
 import UserRepository from "../../../../src/domain/infra/repositories/user-repository.js";
+import { MissingParamError } from "../../../../src/utils/generic-erros";
 
-const sequelize = new Sequelize("sqlite::memory:", { logging: false });
 let userModel;
 
 function makeSut () {
@@ -12,33 +11,16 @@ function makeSut () {
 
 describe("User Repository", () => {
   beforeAll(async () => {
-    try {
-      await sequelize.authenticate();
-      sequelize.getQueryInterface().createTable("users", {
-        id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false },
-        name: { type: DataTypes.TEXT, allowNull: false },
-        email: { type: DataTypes.STRING, allowNull: false },
-        password: { type: DataTypes.STRING, allowNull: false },
-        createdAt: { type: DataTypes.DATE, allowNull: false },
-        updatedAt: { type: DataTypes.DATE, allowNull: false },
-      });
-
-      userModel = sequelize.define("user", {
-        name: { type: DataTypes.STRING, allowNull: false },
-        email: { type: DataTypes.STRING, allowNull: false },
-        password: { type: DataTypes.STRING, allowNull: false },
-      });
-    } catch (error) {
-      console.log("Error connecting!", error);
-    }
+    await MongoHelper.connect(process.env.MONGO_URL);
+    userModel = await MongoHelper.getCollection("users");
   });
 
   beforeEach(async () => {
-    await userModel.destroy({ truncate: true });
+    await userModel.deleteMany();
   });
 
   afterAll(async () => {
-    await sequelize.close();
+    await MongoHelper.disconnect();
   });
 
   test("Find by email should return null if no user is found", async () => {
@@ -50,14 +32,18 @@ describe("User Repository", () => {
 
   test("Find by email should return an user if user is found", async () => {
     const { sut, userModel } = makeSut();
-    const fakeUser = await userModel.create({
+    const fakeUser = await userModel.insertOne({
       name: "any_name",
       email: "valid_email@email.com",
       password: "hashed_password",
     });
-    const user = await sut.findByEmail(fakeUser.email);
+    const user = await sut.findByEmail("valid_email@email.com");
 
-    expect(user.dataValues).toEqual(fakeUser.dataValues);
+    expect(user).toEqual({
+      _id: fakeUser.ops[0]._id,
+      password: fakeUser.ops[0].password,
+      email: fakeUser.ops[0].email,
+    });
   });
 
   test("Find by email should throw if no email is received", async () => {

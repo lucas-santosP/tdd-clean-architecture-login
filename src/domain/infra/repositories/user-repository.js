@@ -9,7 +9,16 @@ export default class UserRepository {
     if (!email) throw new MissingParamError("email");
     if (!this.userModel) throw new MissingParamError("userModel");
 
-    const user = await this.userModel.findOne({ where: { email } });
+    const user = await this.userModel.findOne(
+      { email },
+      {
+        projection: {
+          _id: 1,
+          password: 1,
+          email: 1,
+        },
+      },
+    );
     return user;
   }
 }
