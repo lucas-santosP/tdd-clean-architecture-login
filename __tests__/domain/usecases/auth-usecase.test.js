@@ -2,36 +2,40 @@ import { MissingParamError } from "../../../src/utils/generic-erros";
 import AuthUseCase from "../../../src/domain/usecases/auth-usecase";
 
 function makeSut () {
-  const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
+  const userRepository = makeUserRepositorySpy();
   const encrypter = makeEncrypterSpy();
   const tokenGenerator = makeTokenGeneratorSpy();
-  const updateAccessTokenRepository = makeUpdateAccessTokenRepositorySpy();
   const sut = new AuthUseCase({
-    findUserByEmailRepository,
+    userRepository,
     encrypter,
     tokenGenerator,
-    updateAccessTokenRepository,
   });
 
-  return { sut, findUserByEmailRepository, encrypter, tokenGenerator, updateAccessTokenRepository };
+  return { sut, userRepository, encrypter, tokenGenerator };
 }
 
-function makeFindUserByEmailRepositorySpy () {
-  class FindUserByEmailRepositorySpy {
-    async find (email) {
-      this.email = email;
-      return this.user;
+function makeUserRepositorySpy () {
+  class UserRepositorySpy {
+    async findByEmail (email) {
+      this.findByEmail.email = email;
+      return this.findByEmail.user;
+    }
+
+    async updateAccessToken (userId, accessToken) {
+      this.updateAccessToken.userId = userId;
+      this.updateAccessToken.accessToken = accessToken;
     }
   }
 
-  const findUserByEmailRepository = new FindUserByEmailRepositorySpy();
+  const userRepository = new UserRepositorySpy();
   // mock valid data as default
-  findUserByEmailRepository.user = {
+  userRepository.findByEmail.user = {
+    name: "any_name",
     email: "valid_repo_email@email.com",
     password: "hashed_pass",
     id: "any_id",
   };
-  return findUserByEmailRepository;
+  return userRepository;
 }
 
 function makeEncrypterSpy () {
@@ -61,17 +65,6 @@ function makeTokenGeneratorSpy () {
   return tokenGenerator;
 }
 
-function makeUpdateAccessTokenRepositorySpy () {
-  class UpdateAccessTokenRepositorySp {
-    async update (userId, accessToken) {
-      this.userId = userId;
-      this.accessToken = accessToken;
-    }
-  }
-
-  return new UpdateAccessTokenRepositorySp();
-}
-
 describe("Auth usecase", () => {
   test("Should throw an error if no email is received", async () => {
     const { sut } = makeSut();
@@ -90,36 +83,26 @@ describe("Auth usecase", () => {
   });
 
   test("Should throw if invalid dependency is received", async () => {
-    const findUserByEmailRepository = makeFindUserByEmailRepositorySpy();
+    const userRepository = makeUserRepositorySpy();
     const encrypter = makeEncrypterSpy();
     const tokenGenerator = makeTokenGeneratorSpy();
-    const updateAccessTokenRepository = makeUpdateAccessTokenRepositorySpy();
     const suts = [
       new AuthUseCase(),
       new AuthUseCase({}),
       new AuthUseCase({
-        findUserByEmailRepository: {},
+        userRepository: {},
         encrypter,
         tokenGenerator,
-        updateAccessTokenRepository,
       }),
       new AuthUseCase({
-        findUserByEmailRepository,
+        userRepository,
         encrypter: {},
         tokenGenerator,
-        updateAccessTokenRepository,
       }),
       new AuthUseCase({
-        findUserByEmailRepository,
+        userRepository,
         encrypter,
         tokenGenerator: {},
-        updateAccessTokenRepository,
-      }),
-      new AuthUseCase({
-        findUserByEmailRepository,
-        encrypter,
-        tokenGenerator,
-        updateAccessTokenRepository: {},
       }),
     ];
     const userData = { email: "any_email@email.com", password: "any_pass" };
@@ -131,9 +114,9 @@ describe("Auth usecase", () => {
     }
   });
 
-  test("Should throw if findUserByEmailRepository throws", async () => {
-    const { sut, findUserByEmailRepository } = makeSut();
-    jest.spyOn(findUserByEmailRepository, "find").mockImplementation(() => {
+  test("Should throw if userRepository method findByEmail throws", async () => {
+    const { sut, userRepository } = makeSut();
+    jest.spyOn(userRepository, "findByEmail").mockImplementation(() => {
       throw new Error();
     });
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
@@ -164,9 +147,9 @@ describe("Auth usecase", () => {
     await expect(promise).rejects.toThrow();
   });
 
-  test("Should throw if updateAccessTokenRepository throws", async () => {
-    const { sut, updateAccessTokenRepository } = makeSut();
-    jest.spyOn(updateAccessTokenRepository, "update").mockImplementation(() => {
+  test("Should throw if userRepository method updateAccessToken throws", async () => {
+    const { sut, userRepository } = makeSut();
+    jest.spyOn(userRepository, "updateAccessToken").mockImplementation(() => {
       throw new Error();
     });
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
@@ -176,8 +159,8 @@ describe("Auth usecase", () => {
   });
 
   test("Should return null if invalid email is received", async () => {
-    const { sut, findUserByEmailRepository } = makeSut();
-    findUserByEmailRepository.user = null;
+    const { sut, userRepository } = makeSut();
+    userRepository.findByEmail.user = null;
     const userData = { email: "invalid_email@email.com", password: "any_pass" };
     const accessToken = await sut.auth(userData);
 
@@ -193,43 +176,38 @@ describe("Auth usecase", () => {
     expect(accessToken).toBeNull();
   });
 
-  test("Should call findUserByEmail with correct params", async () => {
-    const { sut, findUserByEmailRepository } = makeSut();
+  test("Should call userRepository method findByEmail with correct params", async () => {
+    const { sut, userRepository } = makeSut();
     const userData = { email: "any_email@email.com", password: "any_pass" };
     await sut.auth(userData);
 
-    expect(findUserByEmailRepository.email).toBe(userData.email);
+    expect(userRepository.findByEmail.email).toBe(userData.email);
   });
 
   test("Should call encrypter with correct params", async () => {
-    const { sut, encrypter, findUserByEmailRepository } = makeSut();
+    const { sut, userRepository, encrypter } = makeSut();
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
     expect(encrypter.password).toBe(userData.password);
-    expect(encrypter.hashedPassword).toBe(findUserByEmailRepository.user.password);
+    expect(encrypter.hashedPassword).toBe(userRepository.findByEmail.user.password);
   });
 
   test("Should call tokenGenerator with correct params", async () => {
-    const { sut, tokenGenerator, findUserByEmailRepository } = makeSut();
+    const { sut, userRepository, tokenGenerator } = makeSut();
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
-    expect(tokenGenerator.userId).toBe(findUserByEmailRepository.user.id);
+    expect(tokenGenerator.userId).toBe(userRepository.findByEmail.user.id);
   });
 
-  test("Should call updateAccessTokenRepository with correct params", async () => {
-    const {
-      sut,
-      findUserByEmailRepository,
-      tokenGenerator,
-      updateAccessTokenRepository,
-    } = makeSut();
+  test("Should call userRepository method updateAccessToken with correct params", async () => {
+    const { sut, userRepository, tokenGenerator } = makeSut();
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
-    expect(updateAccessTokenRepository.userId).toBe(findUserByEmailRepository.user.id);
-    expect(updateAccessTokenRepository.accessToken).toBe(tokenGenerator.accessToken);
+    expect(userRepository.updateAccessToken.userId).toBe(userRepository.findByEmail.user.id);
+    expect(userRepository.updateAccessToken.accessToken).toBe(tokenGenerator.accessToken);
   });
 
   test("Should return an accessToken if valid credentials are received", async () => {
