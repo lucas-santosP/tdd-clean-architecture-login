@@ -1,5 +1,5 @@
-import MongoHelper from "../../../src/domain/repositories/helpers/mongo-helper";
-import UserRepository from "../../../src/domain/repositories/user-repository.js";
+import MongoHelper from "../../../src/infrastructure/helpers/mongo-helper";
+import UserRepository from "../../../src/infrastructure/repositories/user-repository.js";
 import { MissingParamError } from "../../../src/utils/generic-erros";
 
 let userModel;

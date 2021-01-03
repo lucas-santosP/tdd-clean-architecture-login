@@ -1,4 +1,4 @@
-import sut from "../../../../src/domain/repositories/helpers/mongo-helper";
+import sut from "../../../src/infrastructure/helpers/mongo-helper";
 
 describe("Mongo Helper", () => {
   beforeAll(async () => {
