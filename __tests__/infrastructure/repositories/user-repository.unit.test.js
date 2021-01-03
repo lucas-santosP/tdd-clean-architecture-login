@@ -53,13 +53,6 @@ describe("User Repository", () => {
     await expect(promise).rejects.toThrow(new MissingParamError("email"));
   });
 
-  test("Method findByEmail should throw if no userModel is received", async () => {
-    const sut = new UserRepository();
-    const promise = sut.findByEmail("valid_email@email.com");
-
-    await expect(promise).rejects.toThrow(new MissingParamError("userModel"));
-  });
-
   test("Method updateAccessToken should update the user with the given accessToken", async () => {
     const { sut, userModel } = makeSut();
     const fakeUser = await userModel.insertOne({
@@ -85,12 +78,5 @@ describe("User Repository", () => {
     const promise = sut.updateAccessToken("valid_id");
 
     await expect(promise).rejects.toThrow(new MissingParamError("accessToken"));
-  });
-
-  test("Method updateAccessToken should throw if no userModel is received", async () => {
-    const sut = new UserRepository();
-    const promise = sut.updateAccessToken("valid_id", "valid_token");
-
-    await expect(promise).rejects.toThrow(new MissingParamError("userModel"));
   });
 });

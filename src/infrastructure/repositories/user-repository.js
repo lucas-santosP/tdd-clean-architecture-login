@@ -1,15 +1,12 @@
+import MongoHelper from "../helpers/mongo-helper";
 import { MissingParamError } from "../../utils/generic-erros";
 
 export default class UserRepository {
-  constructor (userModel) {
-    this.userModel = userModel;
-  }
-
   async findByEmail (email) {
     if (!email) throw new MissingParamError("email");
-    if (!this.userModel) throw new MissingParamError("userModel");
+    const userModel = await MongoHelper.getCollection("users");
 
-    const user = await this.userModel.findOne(
+    const user = await userModel.findOne(
       { email },
       {
         projection: {
@@ -25,8 +22,8 @@ export default class UserRepository {
   async updateAccessToken (userId, accessToken) {
     if (!userId) throw new MissingParamError("userId");
     if (!accessToken) throw new MissingParamError("accessToken");
-    if (!this.userModel) throw new MissingParamError("userModel");
+    const userModel = await MongoHelper.getCollection("users");
 
-    await this.userModel.updateOne({ _id: userId }, { $set: { accessToken } });
+    await userModel.updateOne({ _id: userId }, { $set: { accessToken } });
   }
 }
