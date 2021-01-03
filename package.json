@@ -8,9 +8,9 @@
     "build": "babel ./src --out-dir ./dist",
     "lint": "eslint",
     "test": "jest --watch --passWithNoTests --onlyChanged",
-    "test-staged": "jest --passWithNoTests --findRelatedTests --onlyChanged --silent",
-    "test-all": "jest --passWithNoTests",
-    "test-ci": "jest --coverage --noStackTrace --silent"
+    "test:unit": "jest --passWithNoTests -c jest-unit-config.js",
+    "test:integ": "jest --passWithNoTests -c jest-integ-config.js",
+    "test:ci": "jest --coverage --noStackTrace --silent"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.10",
