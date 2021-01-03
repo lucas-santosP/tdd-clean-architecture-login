@@ -33,7 +33,7 @@ function makeUserRepositorySpy () {
     name: "any_name",
     email: "valid_repo_email@email.com",
     password: "hashed_pass",
-    id: "any_id",
+    _id: "any_id",
   };
   return userRepository;
 }
@@ -198,7 +198,7 @@ describe("Auth usecase", () => {
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
-    expect(tokenGenerator.userId).toBe(userRepository.findByEmail.user.id);
+    expect(tokenGenerator.userId).toBe(userRepository.findByEmail.user._id);
   });
 
   test("Should call userRepository method updateAccessToken with correct params", async () => {
@@ -206,7 +206,7 @@ describe("Auth usecase", () => {
     const userData = { email: "valid_email@email.com", password: "valid_pass" };
     await sut.auth(userData);
 
-    expect(userRepository.updateAccessToken.userId).toBe(userRepository.findByEmail.user.id);
+    expect(userRepository.updateAccessToken.userId).toBe(userRepository.findByEmail.user._id);
     expect(userRepository.updateAccessToken.accessToken).toBe(tokenGenerator.accessToken);
   });
 

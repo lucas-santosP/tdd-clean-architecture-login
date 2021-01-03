@@ -17,8 +17,8 @@ export default class AuthUseCase {
     const isValid = await this.encrypter.compare(password, user.password);
     if (!isValid) return null;
 
-    const accessToken = await this.tokenGenerator.generate(user.id);
-    await this.userRepository.updateAccessToken(user.id, accessToken);
+    const accessToken = await this.tokenGenerator.generate(user._id);
+    await this.userRepository.updateAccessToken(user._id, accessToken);
     return accessToken;
   }
 }
