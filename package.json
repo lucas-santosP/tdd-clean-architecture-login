@@ -1,10 +1,10 @@
 {
   "name": "tdd-clean-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/main/server.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --exec babel-node src/server.js",
+    "dev": "nodemon --exec babel-node src/main/server.js",
     "build": "babel ./src --out-dir ./dist",
     "lint": "eslint",
     "test": "jest --watch --passWithNoTests --onlyChanged",
