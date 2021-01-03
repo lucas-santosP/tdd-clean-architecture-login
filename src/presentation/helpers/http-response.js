@@ -2,7 +2,7 @@ import { UnauthorizedError, ServerError } from "../errors";
 
 export default class HttpResponse {
   static badRequest (error) {
-    return { statusCode: 400, body: { ...error, message: error.message } };
+    return { statusCode: 400, body: error };
   }
 
   static serverError () {
