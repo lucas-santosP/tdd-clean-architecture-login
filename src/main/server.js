@@ -1,8 +1,12 @@
 import app from "./config/app";
-import mongoHelper from "../infrastructure/repositories/helpers/mongo-helper";
-
-mongoHelper.connect();
+// import MongoHelper from "../infrastructure/helpers/mongo-helper";
+// import env from "./config/env";
+// MongoHelper.connect(env.mongoUrl)
+//   .then(async () => {
+//     const app = (await import("./config/app")).default;
+//   })
+//   .catch(console.error);
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log("Willay!!");
+  console.log("Server running at http://localhost:3000");
 });
