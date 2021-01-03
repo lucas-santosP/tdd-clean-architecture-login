@@ -3,4 +3,5 @@ module.exports = {
   coverageProvider: "babel",
   preset: "@shelf/jest-mongodb",
   roots: ["__tests__"],
+  collectCoverageFrom: ["**/src/**/*.js", "!**/src/main/config/**"],
 };
