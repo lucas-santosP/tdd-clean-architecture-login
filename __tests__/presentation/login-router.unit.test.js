@@ -45,7 +45,7 @@ describe("Login Router", () => {
         password: "any_pass",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("email"));
@@ -58,7 +58,7 @@ describe("Login Router", () => {
         email: "any_email@email.com",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("password"));
@@ -66,7 +66,7 @@ describe("Login Router", () => {
 
   test("Should return 500 if no httpRequest is received", async () => {
     const { sut } = makeSut();
-    const httpResponse = await sut.route();
+    const httpResponse = await sut.handle();
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
@@ -75,7 +75,7 @@ describe("Login Router", () => {
   test("Should return 500 if httpRequest has no body", async () => {
     const { sut } = makeSut();
     const httpRequest = {};
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
@@ -90,7 +90,7 @@ describe("Login Router", () => {
         password: "invalid_pass",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(401);
     expect(httpResponse.body).toEqual(new UnauthorizedError());
@@ -104,7 +104,7 @@ describe("Login Router", () => {
         password: "valid_pass",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
     expect(httpResponse.body.accessToken).toEqual(authUseCaseSpy.accessToken);
@@ -124,7 +124,7 @@ describe("Login Router", () => {
     };
 
     for (const sut of suts) {
-      const httpResponse = await sut.route(httpRequest);
+      const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(new ServerError());
@@ -139,7 +139,7 @@ describe("Login Router", () => {
         password: "any_pass",
       },
     };
-    await sut.route(httpRequest);
+    await sut.handle(httpRequest);
 
     expect(authUseCaseSpy.email).toBe(httpRequest.body.email);
     expect(authUseCaseSpy.password).toBe(httpRequest.body.password);
@@ -154,7 +154,7 @@ describe("Login Router", () => {
         password: "any_pass",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidParamError("email"));
@@ -174,7 +174,7 @@ describe("Login Router", () => {
     };
 
     for (const sut of suts) {
-      const httpResponse = await sut.route(httpRequest);
+      const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(new ServerError());
@@ -189,7 +189,7 @@ describe("Login Router", () => {
         password: "any_pass",
       },
     };
-    await sut.route(httpRequest);
+    await sut.handle(httpRequest);
 
     expect(emailValidatorSpy.email).toBe(httpRequest.body.email);
   });
@@ -203,7 +203,7 @@ describe("Login Router", () => {
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());

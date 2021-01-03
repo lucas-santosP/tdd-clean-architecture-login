@@ -60,7 +60,7 @@ describe("Register Router", () => {
         name: "any_name",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("email"));
@@ -73,7 +73,7 @@ describe("Register Router", () => {
         email: "any_email@email.com",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("name"));
@@ -88,7 +88,7 @@ describe("Register Router", () => {
         email: "invalid_email@email.com",
       },
     };
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidParamError("email"));
@@ -102,7 +102,7 @@ describe("Register Router", () => {
         email: "any_email@email.com",
       },
     };
-    await sut.route(httpRequest);
+    await sut.handle(httpRequest);
 
     expect(registerUser.email).toBe(httpRequest.body.email);
     expect(registerUser.name).toBe(httpRequest.body.name);
@@ -116,7 +116,7 @@ describe("Register Router", () => {
         email: "any_email@email.com",
       },
     };
-    await sut.route(httpRequest);
+    await sut.handle(httpRequest);
 
     expect(emailSender.email).toBe(httpRequest.body.email);
   });
@@ -129,7 +129,7 @@ describe("Register Router", () => {
         email: "any_email@email.com",
       },
     };
-    await sut.route(httpRequest);
+    await sut.handle(httpRequest);
 
     expect(emailValidator.email).toBe(httpRequest.body.email);
   });
@@ -149,7 +149,7 @@ describe("Register Router", () => {
     };
 
     for (const sut of suts) {
-      const httpResponse = await sut.route(httpRequest);
+      const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(new ServerError());
@@ -171,7 +171,7 @@ describe("Register Router", () => {
     };
 
     for (const sut of suts) {
-      const httpResponse = await sut.route(httpRequest);
+      const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(new ServerError());
@@ -193,7 +193,7 @@ describe("Register Router", () => {
     };
 
     for (const sut of suts) {
-      const httpResponse = await sut.route(httpRequest);
+      const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(new ServerError());
@@ -212,7 +212,7 @@ describe("Register Router", () => {
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
@@ -230,7 +230,7 @@ describe("Register Router", () => {
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
@@ -248,7 +248,7 @@ describe("Register Router", () => {
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
@@ -263,7 +263,7 @@ describe("Register Router", () => {
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());

@@ -7,7 +7,7 @@ export default class LoginRouter {
     this.emailValidator = emailValidator;
   }
 
-  async route (httpRequest) {
+  async handle (httpRequest) {
     try {
       const userData = { email: httpRequest.body.email, password: httpRequest.body.password };
 

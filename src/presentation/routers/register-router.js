@@ -8,7 +8,7 @@ export default class RegisterRouter {
     this.emailValidator = emailValidator;
   }
 
-  async route (httpRequest) {
+  async handle (httpRequest) {
     try {
       const userData = { name: httpRequest.body.name, email: httpRequest.body.email };
 
