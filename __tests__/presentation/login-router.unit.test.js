@@ -48,7 +48,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("email"));
+    expect(httpResponse.body.name).toBe(new MissingParamError("email").name);
   });
 
   test("Should return 400 if no password is received", async () => {
@@ -61,7 +61,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("password"));
+    expect(httpResponse.body.name).toBe(new MissingParamError("password").name);
   });
 
   test("Should return 500 if no httpRequest is received", async () => {
@@ -69,7 +69,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle();
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 
   test("Should return 500 if httpRequest has no body", async () => {
@@ -78,7 +78,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 
   test("Should return 401 if invalid credentials are received", async () => {
@@ -93,7 +93,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(401);
-    expect(httpResponse.body).toEqual(new UnauthorizedError());
+    expect(httpResponse.body.name).toBe(new UnauthorizedError().name);
   });
 
   test("Should return 200 if valid credentials are received", async () => {
@@ -127,7 +127,7 @@ describe("Login Router", () => {
       const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(new ServerError());
+      expect(httpResponse.body.name).toBe(new ServerError().name);
     }
   });
 
@@ -157,7 +157,7 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new InvalidParamError("email"));
+    expect(httpResponse.body.name).toBe(new InvalidParamError("email").name);
   });
 
   test("Should return 500 if invalid emailValidator is received", async () => {
@@ -177,7 +177,7 @@ describe("Login Router", () => {
       const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(new ServerError());
+      expect(httpResponse.body.name).toBe(new ServerError().name);
     }
   });
 
@@ -206,6 +206,6 @@ describe("Login Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 });

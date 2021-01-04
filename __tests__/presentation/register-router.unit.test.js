@@ -63,7 +63,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("email"));
+    expect(httpResponse.body.name).toBe(new MissingParamError("email").name);
   });
 
   test("Should return 400 if no name is received", async () => {
@@ -76,7 +76,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("name"));
+    expect(httpResponse.body.name).toBe(new MissingParamError("name").name);
   });
 
   test("Should return 401 if invalid email is received", async () => {
@@ -91,7 +91,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new InvalidParamError("email"));
+    expect(httpResponse.body.name).toBe(new InvalidParamError("email").name);
   });
 
   test("Should call registerUser with correct params", async () => {
@@ -152,7 +152,7 @@ describe("Register Router", () => {
       const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(new ServerError());
+      expect(httpResponse.body.name).toBe(new ServerError().name);
     }
   });
 
@@ -174,7 +174,7 @@ describe("Register Router", () => {
       const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(new ServerError());
+      expect(httpResponse.body.name).toBe(new ServerError().name);
     }
   });
 
@@ -196,7 +196,7 @@ describe("Register Router", () => {
       const httpResponse = await sut.handle(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(new ServerError());
+      expect(httpResponse.body.name).toBe(new ServerError().name);
     }
   });
 
@@ -215,7 +215,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 
   test("Should return 500 if registerUser throws", async () => {
@@ -233,7 +233,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 
   test("Should return 500 if emailValidator throws", async () => {
@@ -251,7 +251,7 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 
   test("Should return 500 if no dependencies are received", async () => {
@@ -266,6 +266,6 @@ describe("Register Router", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body.name).toBe(new ServerError().name);
   });
 });
