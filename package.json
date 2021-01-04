@@ -40,6 +40,7 @@
     "fast-glob": "^3.2.4",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",
+    "serialize-error": "^7.0.1",
     "validator": "^13.5.2"
   }
 }
